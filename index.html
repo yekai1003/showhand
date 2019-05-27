@@ -6,6 +6,7 @@
     <!--引入css 需要用这个标签-->
     <link rel="stylesheet" href="bootstrap/dist/css/bootstrap.css">
     <script src="js/web3.js"></script>
+	<script src="js/abi.js"></script>
     <!--核心js 文件.-->
     <script src="jquery/jquery.js"></script>
     <script src="bootstrap/dist/js/bootstrap.js"></script>
@@ -57,332 +58,13 @@
          //页面自动加载
          $(function(){
              //1. 构造web3对象
-             var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+             var web3 = new Web3(new Web3.providers.HttpProvider("http://192.168.1.121:8545"));
              web3.eth.getAccounts(function(error,result){
                  console.log(result);
              });
              //2. 构造合约实例
-             var contractAddr = "0xe563e0979a2b4338cecfb1fb8e5d3cefd48cf9ef";//remix 
-             var abi = [
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "bet",
-		"outputs": [],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "bringIn",
-		"outputs": [],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "fold",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "addr",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "value",
-				"type": "uint256"
-			}
-		],
-		"name": "onBet",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [],
-		"name": "onGameCreated",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "player",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "card",
-				"type": "uint8"
-			}
-		],
-		"name": "onCardDeal",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "player",
-				"type": "address"
-			}
-		],
-		"name": "onPlayerJoined",
-		"type": "event"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "join",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "pass",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "resetRoundData",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "withDraw",
-		"outputs": [],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"name": "_cto",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "activePlayer",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "bringInBet",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "pos",
-				"type": "uint8"
-			}
-		],
-		"name": "getPlayerCard",
-		"outputs": [
-			{
-				"name": "host",
-				"type": "uint8"
-			},
-			{
-				"name": "guest",
-				"type": "uint8"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "getPocket",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint8"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "guestPlayer",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "hostPlayer",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "isPlayerActioned",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "minmalBet",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "round",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint8"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "roundBalance",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "totalBalance",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "winner",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	}
-];
+             var contractAddr = "0xd3c565fb195fb3c18d267ed3b48029e9ed2ca878";//remix 
+             //var abi = 
              var showhand = new web3.eth.Contract(abi,contractAddr);
              console.log(showhand);
             
@@ -531,11 +213,11 @@
 		</div>
         <div class="first area_showhand">
             <ul>
-                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
-                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
-                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
-                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
-                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/0.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/0.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/0.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/0.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/0.png" alt=""></a></li>
             </ul>
         </div>
 
@@ -545,11 +227,11 @@
 		</div>
         <div class="second area_showhand">
             <ul>
-                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
-                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
-                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
-                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
-                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/0.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/0.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/0.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/0.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/0.png" alt=""></a></li>
             </ul>
 		</div>
     <div style="text-align: center;">
