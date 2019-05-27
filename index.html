@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>梭哈游戏</title>
+    <!--引入css 需要用这个标签-->
+    <link rel="stylesheet" href="bootstrap/dist/css/bootstrap.css">
+    <script src="js/web3.js"></script>
+    <!--核心js 文件.-->
+    <script src="jquery/jquery.js"></script>
+    <script src="bootstrap/dist/js/bootstrap.js"></script>
+    <style>
+            *{
+                 margin: 0;
+                 padding: 0;
+                 list-style: none;
+            }
+            .layout{
+                   width: 80%;
+                   margin: 40px auto;
+            }
+            .area_showhand{
+                  border: 1px solid #ccc;
+                  width: 90%;
+                  margin: 20px auto;
+                  height: 200px;
+                  border-radius: 5px;
+            }
+			.first_address , .second_address{
+				 width: 90%;
+				 padding-left: 50px;
+			}
+            .area_showhand ul{
+
+            }
+            .area_showhand ul li{
+                  width: 20%;
+                  float: left;
+            }
+            .area_showhand ul li a{
+                  display: block;
+                  width: 60%;
+                  margin: 10px auto;
+            }
+            .area_showhand ul li a img{
+                  width: 100%;
+				  border: 1px solid #ccc;
+				  height:180px;
+            }
+            .weiclass{
+                  width: 100px;
+                  display: inline-block;
+            }
+    </style>
+    <script>
+		 //add web3 call here!
+         //页面自动加载
+         $(function(){
+             //1. 构造web3对象
+             var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+             web3.eth.getAccounts(function(error,result){
+                 console.log(result);
+             });
+             //2. 构造合约实例
+             var contractAddr = "0xe563e0979a2b4338cecfb1fb8e5d3cefd48cf9ef";//remix 
+             var abi = [
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "bet",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "bringIn",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "fold",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "addr",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "onBet",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [],
+		"name": "onGameCreated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "player",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "card",
+				"type": "uint8"
+			}
+		],
+		"name": "onCardDeal",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "player",
+				"type": "address"
+			}
+		],
+		"name": "onPlayerJoined",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "join",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "pass",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "resetRoundData",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "withDraw",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"name": "_cto",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "activePlayer",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "bringInBet",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "pos",
+				"type": "uint8"
+			}
+		],
+		"name": "getPlayerCard",
+		"outputs": [
+			{
+				"name": "host",
+				"type": "uint8"
+			},
+			{
+				"name": "guest",
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getPocket",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "guestPlayer",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "hostPlayer",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "isPlayerActioned",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "minmalBet",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "round",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "roundBalance",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "totalBalance",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "winner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+             var showhand = new web3.eth.Contract(abi,contractAddr);
+             console.log(showhand);
+            
+            /// 第二部分 实现 开始
+            $('#myModal').modal();
+            var acctAddr;
+            // 加入游戏：获取账户地址，调用join方法
+            $(".joinGame").on("click",function(){
+                acctAddr = $("#addressId").val();
+                console.log(acctAddr);
+                //调用join方法
+                showhand.methods.join().send({
+                    from : acctAddr,
+                    gas  : 300000
+                },function(error,result){
+                    if( !error ) {
+                        alert("加入成功");
+                        $(".close_win").click();
+                    }
+                });
+            });
+            /// 下底注：调用bringIn方法，传递values=100 
+            $(".BringIn").on("click",function(){
+                showhand.methods.bringIn().send({
+                    from  : acctAddr,
+                    value : 100,
+                    gas   : 300000
+                },function(error,result){
+                    if(!error) {
+                        alert("下底注成功");
+                    }
+                });
+            });
+            
+            /// 第二部分 实现 结束
+            /// 第三部分 实现 开始
+            //显示明牌： 根据点击的位置获取对应所有玩家的牌，底牌不可用
+            function showMingPai(num) {
+                showhand.methods.getPlayerCard(num - 1).call(function(error,result){
+                    var host  = result.host;
+                    var guest = result.guest;
+
+                    var expre = ".first ul li:nth-child("+num+") img";
+                    $(expre).attr("src","images/"+guest+".png");
+                    $(expre).attr("title",guest);
+
+                    var expre = ".second ul li:nth-child("+num+") img";
+                    $(expre).attr("src","images/"+host+".png");
+                    $(expre).attr("title",host);
+
+                });
+            }
+            var hostAddr;
+            //获取hostAddr
+            function getHostPlayer(){
+                showhand.methods.hostPlayer().call(function(error,result){
+                    if( !error ) {
+                        hostAddr = result;
+                    }
+                });
+            }
+            // 显示底牌，只有玩家自己可见
+            function showDiPai() {
+                getHostPlayer();
+                showhand.methods.getPocket().call({
+                    from : acctAddr
+                },function(error,result){
+                    // 在哪里更新?  hostPlayer??? 
+                    var card = result;
+                    // 注意hostAddr 与 acctAddr 大小写可能有切换 
+                    hostAddr = hostAddr.toLowerCase();//转小写
+                    acctAddr = acctAddr.toLowerCase();
+                    if( hostAddr == acctAddr ) {
+                        //代表是host玩家
+                        var expre = ".second ul li:nth-child("+1+") img";
+                        $(expre).attr("src","images/"+card+".png");
+                        $(expre).attr("title",card);
+                    }
+                    else {
+                        var expre = ".first ul li:nth-child("+1+") img";
+                        $(expre).attr("src","images/"+card+".png");
+                        $(expre).attr("title",card);  
+                    }
+                });
+            }
+            //调用显示明牌，根据点击位置，调用
+            $(".second ul li").on("click",function(){
+                var num = $(this).index();
+                console.log(num);
+                if( num > 0 ) {
+                    showMingPai(num + 1);
+                }
+                else if( num == 0) {
+                    showDiPai();
+                }
+            });
+            /// 第三部分 实现 结束
+            /// 第四部分 实现 开始
+            // 下注 : 获取下注金额，调用bet函数
+            $(".Bet").on("click",function(){
+                var amount = $(".getWei").val();
+                console.log("bet:",amount);
+                showhand.methods.bet().send({
+                    from : acctAddr,
+                    value : amount,
+                    gas  : 300000
+                },function(error,result){
+                    if( !error ) {
+                        alert("下注成功");
+                    }
+                });
+            });
+            /// 第四部分 实现 结束
+
+
+         });
+	</script>
+</head>
+<body>
+<!--弹出窗口部分-->
+<div id="myModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">是否加入游戏</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="addressId">账户地址</label>
+                    <input type="email" class="form-control" id="addressId" placeholder="请输入账户地址">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="close_win btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="joinGame btn btn-primary">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="layout">
+        <div class="first_address">
+			<span>guestPlayer:</span>
+			<span></span>
+		</div>
+        <div class="first area_showhand">
+            <ul>
+                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
+            </ul>
+        </div>
+
+        <div class="second_address">
+			<span>hostPlayer:</span>
+			<span></span>
+		</div>
+        <div class="second area_showhand">
+            <ul>
+                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
+                <li><a href="javascript:;"><img src="images/55.png" alt=""></a></li>
+            </ul>
+		</div>
+    <div style="text-align: center;">
+    wei:<input type="text" class="getWei form-control weiclass" >
+    <button type="button" class="BringIn btn btn-danger">下底注</button>
+	<button type="button" class="Bet btn btn-primary">下注</button>
+	<button type="button" class="ActivePlayer btn btn-primary">该谁说话</button>
+	<button type="button" class="getWinner btn btn-primary">查看赢家</button>
+   </div>		
+
+</div>
+
+</body>
+</html>
