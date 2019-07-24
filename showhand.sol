@@ -33,7 +33,7 @@ contract showhand {
         minmalBet = 100;
         round = 0;
         hostPlayer = msg.sender;
-        seed = block.blockhash(block.number - 1);
+        seed = keccak256(abi.encodePacked(block.number - 1));
         emit onGameCreated();
     }
     //是否所有玩家动作过
